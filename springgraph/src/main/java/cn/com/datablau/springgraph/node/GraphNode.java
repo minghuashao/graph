@@ -1,6 +1,9 @@
 package cn.com.datablau.springgraph.node;
 
+import java.util.Map;
+
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -12,18 +15,14 @@ import lombok.Data;
 @Data
 @ApiModel
 public class GraphNode {
-	private Long UUID; //Type+Id mapping to uuid
+	//private Long UUID; //Type+Id mapping to uuid
 	private String   Id;  //Dam object native id
     private String Name;//Dam object name;
     private String Type;//Dam object type;
-//    private String Defination; // Dam object definition
     private String businessId; //return Type + Id
-	public Long getUUID() {
-		return UUID;
-	}
-	public void setUUID(Long uUID) {
-		UUID = uUID;
-	}
+   
+    @ApiModelProperty
+    private Map<String,Object> values;
 
 	public String getId() {
 		return Id;
@@ -50,6 +49,13 @@ public class GraphNode {
 	public void setBusinessId(String businessId) {
 		this.businessId = businessId;
 	}
+	public Map<String,Object> getValues() {
+		return values;
+	}
+	public void setValues(Map<String,Object> values) {
+		this.values = values;
+	}
+	
     
 
 }
