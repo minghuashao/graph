@@ -24,7 +24,7 @@ public class NodeDeleteServer {
 			if(!result.hasNext()) {
 				String cypherSQLNode=String.format("match(n) where n.businessId=\"%s\" delete n   ", businessId);
 				System.out.println(cypherSQLNode);
-				session.run(cypherSQL);		
+				session.run(cypherSQLNode);		
 			}
 			System.out.println("已删除该节点及关系");
 			

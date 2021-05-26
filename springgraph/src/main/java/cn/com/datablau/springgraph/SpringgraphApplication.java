@@ -16,7 +16,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 //@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class})	
 @Configuration
 @EnableSwagger2
-@ComponentScan(basePackages = {"cn.com.datablau.springgraph.controller","cn.com.datablau.springgraph.servers"})
+@ComponentScan(basePackages = {"cn.com.datablau.springgraph.controller",
+		"cn.com.datablau.springgraph.servers",
+		"cn.com.datablau.springgraph.config"})
 @SpringBootApplication
 public class SpringgraphApplication {
 

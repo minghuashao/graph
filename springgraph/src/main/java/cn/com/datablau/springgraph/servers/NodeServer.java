@@ -18,8 +18,10 @@ import cn.com.datablau.springgraph.node.GraphNode;
 
 @Service
 public class NodeServer {
-	@Autowired
+	
+	@Autowired(required=true)
 	private Session  session;
+	
     public String saveNode(GraphNode graphNode) {
     	Long  starttime=System.currentTimeMillis();
     	Map<String,Object> values=new HashMap<String, Object>();
@@ -57,7 +59,6 @@ public class NodeServer {
 				Map<String, Object> nodeProperties = value.asMap();
 				return_businessId=(String) nodeProperties.get("businessId");
 			}
-			
 			
 		} catch (Exception e) {
 			e.printStackTrace();
