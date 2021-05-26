@@ -2,13 +2,10 @@ package cn.com.datablau.springgraph.servers;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.neo4j.driver.AuthTokens;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cn.com.datablau.springgraph.node.GraphNode;
 
@@ -21,18 +18,8 @@ import cn.com.datablau.springgraph.node.GraphNode;
 
 @Service
 public class NodeServer {
-	@Value("${spring.neo4j.uri}")
-    private String url;
-
-    @Value("${spring.neo4j.authentication.username}")
-    private String username;
-
-    @Value("${spring.neo4j.authentication.password}")
-    private String password;
-    
-    private Driver createDrive() {
-		return GraphDatabase.driver(url, AuthTokens.basic(username, password));
-	   }
+	@Autowired
+	private Session  session;
     public String saveNode(GraphNode graphNode) {
     	Long  starttime=System.currentTimeMillis();
     	Map<String,Object> values=new HashMap<String, Object>();
@@ -59,8 +46,7 @@ public class NodeServer {
     private String businessIdSearch(String businessId) {
     	String return_businessId=null;
 		try {
-			Driver  driver=createDrive();
-			Session session= driver.session();
+			
 			String cyphersql= String.format(
 					"match(a) where a.businessId=\"%s\"  return a",businessId );
 			System.out.println("businessIdSearch= "+cyphersql);
@@ -71,8 +57,7 @@ public class NodeServer {
 				Map<String, Object> nodeProperties = value.asMap();
 				return_businessId=(String) nodeProperties.get("businessId");
 			}
-			session.close();
-			driver.close();
+			
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -84,19 +69,17 @@ public class NodeServer {
     private void createNode(GraphNode nodeobject, Map<String, Object> values) {
     	Map<String, Object> map=values;
     	try {
-			Driver driver=createDrive();
+			
 			String cypherSql = String.format(
 					"CREATE(n:Node {Id:\"%s\",Name:\"%s\",Type:\"%s\",businessId:\"%s\"})",
 					nodeobject.getId(), nodeobject.getName(),nodeobject.getType(),nodeobject.getBusinessId());
 			System.out.println("createNode= "+cypherSql);
 			boolean isNode=queryNode(nodeobject.getBusinessId());
 			if(!isNode) {
-				try(Session session=driver.session()){
-					session.writeTransaction( tx -> {
-			            tx.run(cypherSql);
-			            return 1;
-			        });
-				  }
+				session.writeTransaction( tx -> {
+		            tx.run(cypherSql);
+		            return 1;
+		        });
 			}else {
 				System.out.println("节点已经存在！不用再次创建");
 			}
@@ -106,8 +89,6 @@ public class NodeServer {
 				creatSuperSet(nodeobject,map); 
 			}
 			
-			
-			driver.close();			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -116,8 +97,7 @@ public class NodeServer {
     private boolean queryNode(String businessId) {
     	boolean isNode=false;
     	try {
-			Driver  driver=createDrive();
-			Session session= driver.session();
+			
 			String cyphersql= String.format(
 					"match(a) where a.businessId=\"%s\"  return a",businessId );
 			System.out.println("queryNode= "+cyphersql);
@@ -125,8 +105,6 @@ public class NodeServer {
 			if(result.hasNext()) {
 				isNode=true;
 			}
-			session.close();
-			driver.close();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -137,9 +115,7 @@ public class NodeServer {
     private void creatSuperSet(GraphNode nodeobject, Map<String, Object> map) {
     	try {
 			
-    		Driver driver=createDrive();
-			Session  session= driver.session();
-			
+    		
 			for (String key : map.keySet()) {
 				 String cypherQuerySql= String.format("match(n) where n.businessId=\"%s\" set n."+key+"="+ "\""+map.get(key)+"\""  + "  return n ", 
 						 nodeobject.getBusinessId());
@@ -147,8 +123,7 @@ public class NodeServer {
                   session.run(cypherQuerySql);
 			 }
 			System.out.println("已经创建扩展属性");
-			session.close();
-			driver.close();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

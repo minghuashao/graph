@@ -21,6 +21,7 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping("/v3")
 @Api(value = "v3", tags = "NodeController", description = "Node 交互接口")
 public class NodeController {
+	
 	@Autowired
 	private NodeServer nodeServer;
     @ApiOperation(value = "保存节点数据", 

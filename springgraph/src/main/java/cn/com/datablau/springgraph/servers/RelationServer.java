@@ -2,12 +2,9 @@ package cn.com.datablau.springgraph.servers;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.neo4j.driver.AuthTokens;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cn.com.datablau.springgraph.node.Relation;
 
@@ -19,18 +16,8 @@ import cn.com.datablau.springgraph.node.Relation;
  */
 @Service
 public class RelationServer {
-	@Value("${spring.neo4j.uri}")
-    private String url;
-
-    @Value("${spring.neo4j.authentication.username}")
-    private String username;
-
-    @Value("${spring.neo4j.authentication.password}")
-    private String password;
-    
-    private Driver createDrive() {
-		return GraphDatabase.driver(url, AuthTokens.basic(username, password));
-	   }
+	@Autowired
+	private Session  session;
     public String saveRelation(Relation relation) {
     	String StartbusinessId=relation.getStartbusinessId();
     	String EndbusinessId=relation.getEndbusinessId();
@@ -42,8 +29,7 @@ public class RelationServer {
     	Map<String,Object> values=new HashMap<String, Object>();
     	values=relation.getValues();
     	try {
-    		Driver  driver=  createDrive();
-			Session session =driver.session();
+    		
 			boolean isstartExit=queryRelation(StartbusinessId);
 			boolean isendExit=queryRelation(EndbusinessId);
 			if(isstartExit && isendExit ) {
@@ -79,8 +65,7 @@ public class RelationServer {
 					StartbusinessId, EndbusinessId);
 			System.out.println(cypherSQL);
 			session.run(cypherSQL);
-			session.close();
-			driver.close();	
+			
 			
 			
 		} catch (Exception e) {
@@ -95,16 +80,14 @@ public class RelationServer {
     	private boolean queryRelation(String setStartbusinessId) {
     		boolean isexit=false;
     		try {
-    			Driver  driver= createDrive();
-    			Session  session= driver.session();
+    			
     			String querycypher=String.format("match(a) where a.businessId=\"%s\" return a", setStartbusinessId);		
     			System.out.println("queryRelation "+querycypher);
     			Result result= session.run(querycypher);
     			if(result.hasNext()) {
     				isexit=true;
     			}
-    			session.close();
-    			driver.close();
+    			
     		} catch (Exception e) {
     			e.printStackTrace();
     		}
